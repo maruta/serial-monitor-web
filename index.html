@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>serial monitor</title>
+    <title>Serial Monitor</title>
+    <meta name="description" content="A serial monitor that works with web browsers (probably Chrome/Edge only) that I made as a temporary solution to a problem with the Arduino Serial monitor that does not allow you to select and copy all. Please do not expect too much.">
+
     <style>
         @font-face {
             font-family: "IBM Plex Mono";
@@ -17,6 +19,7 @@
         button,
         select {
             font-family: "IBM Plex Mono", monospace;
+
             &:hover {
                 background-color: rgba(0, 255, 255, 0.2);
             }
@@ -51,7 +54,7 @@
             margin: 2px;
             padding: 3px 10px;
             outline: none;
-            text-align:right;
+            text-align: right;
             transition: border-color 0.3s color 0.3s;
 
             &:focus {
@@ -103,11 +106,12 @@
         }
 
         #output::-webkit-scrollbar-thumb {
-            background-color: rgba(0, 255, 255, 0.9); 
-            border-radius: 4px; 
+            background-color: rgba(0, 255, 255, 0.9);
+            border-radius: 4px;
             border: 2px solid transparent;
             background-clip: content-box;
         }
+
         #overlay {
             position: absolute;
             top: 0;
@@ -137,27 +141,19 @@
     <textarea id="output">
 
 
-██╗    ██╗███████╗██████╗
-██║    ██║██╔════╝██╔══██╗
-██║ █╗ ██║█████╗  ██████╔╝
-██║███╗██║██╔══╝  ██╔══██╗
-╚███╔███╔╝███████╗██████╔╝
- ╚══╝╚══╝ ╚══════╝╚═════╝
-
-███████╗███████╗██████╗ ██╗ █████╗ ██╗
-██╔════╝██╔════╝██╔══██╗██║██╔══██╗██║
-███████╗█████╗  ██████╔╝██║███████║██║
-╚════██║██╔══╝  ██╔══██╗██║██╔══██║██║
-███████║███████╗██║  ██║██║██║  ██║███████╗
-╚══════╝╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚══════╝
-
-███╗   ███╗ ██████╗ ███╗   ██╗██╗████████╗ ██████╗ ██████╗
+███████╗███████╗██████╗ ██╗ █████╗ ██╗                     
+██╔════╝██╔════╝██╔══██╗██║██╔══██╗██║                     
+███████╗█████╗  ██████╔╝██║███████║██║                     
+╚════██║██╔══╝  ██╔══██╗██║██╔══██║██║                     
+███████║███████╗██║  ██║██║██║  ██║███████╗                
+╚══════╝╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚══════╝                
+                                                            
+███╗   ███╗ ██████╗ ███╗   ██╗██╗████████╗ ██████╗ ██████╗ 
 ████╗ ████║██╔═══██╗████╗  ██║██║╚══██╔══╝██╔═══██╗██╔══██╗
 ██╔████╔██║██║   ██║██╔██╗ ██║██║   ██║   ██║   ██║██████╔╝
 ██║╚██╔╝██║██║   ██║██║╚██╗██║██║   ██║   ██║   ██║██╔══██╗
 ██║ ╚═╝ ██║╚██████╔╝██║ ╚████║██║   ██║   ╚██████╔╝██║  ██║
 ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
-
 
 Click on CONNECT button to start.
 </textarea>
