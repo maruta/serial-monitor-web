@@ -210,12 +210,12 @@ see <a href="https://github.com/maruta/serial-monitor-web" target="_blank">https
     }
 
     document.getElementById("copy").addEventListener("click", () => {
-        const range = document.createRange();
-        range.selectNode(document.getElementById('output'));
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(range);
-        document.execCommand("copy");
-        showOverlay();
+        const textToCopy = document.getElementById('output').innerText;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            showOverlay();
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
     });
 
 </script>
