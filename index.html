@@ -15,6 +15,7 @@
             font-weight: 400;
             src: local("IBM Plex Mono"), local("IBMPlexMono"), url("./IBM-Plex-Mono/IBMPlexMono-Regular.woff2") format("woff2");
         }
+
         @font-face {
             font-family: "IBM Plex Mono";
             font-style: normal;
@@ -27,8 +28,10 @@
         }
 
         textarea,
-        input,button {
+        input,
+        button {
             font-weight: bold;
+
             &:hover {
                 background-color: rgba(0, 255, 255, 0.2);
             }
@@ -91,19 +94,28 @@
             background-color: rgbA(34, 34, 34, 0.5);
             padding: 0.2em 0.5em;
             font-weight: bold;
+            text-align: right;
+            z-index: 2;
+        }
+
+        .ui-row {
+            margin-bottom: 1em;
         }
 
         #output {
             border: none;
             width: 100%;
             height: 100%;
-            padding: 0.7em 1.7em;
+            padding: 0em 1.7em;
+            margin: 0;
             box-sizing: border-box;
             background-color: rgb(34, 34, 34);
             font-size: 14px;
             color: #fff;
             white-space: pre-wrap;
-            overflow: auto;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            z-index: 1;
         }
 
         #output a {
@@ -116,7 +128,7 @@
         }
 
         #output::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
         }
 
         #output::-webkit-scrollbar-track {
@@ -126,7 +138,7 @@
         #output::-webkit-scrollbar-thumb {
             background-color: rgba(0, 255, 255, 0.9);
             border-radius: 4px;
-            border: 2px solid transparent;
+            border: 0px solid transparent;
             background-clip: content-box;
         }
 
@@ -150,13 +162,13 @@
             width: 32px;
             height: 20px;
         }
-    
+
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-    
+
         .slider {
             position: absolute;
             cursor: pointer;
@@ -168,7 +180,7 @@
             transition: .4s;
             border: 2px solid rgba(0, 255, 255, 0.9);
         }
-    
+
         .slider:before {
             position: absolute;
             content: "";
@@ -179,37 +191,95 @@
             background-color: rgba(0, 255, 255, 0.9);
             transition: .4s;
         }
-    
-        input:checked + .slider {
+
+        input:checked+.slider {
             background-color: rgba(0, 255, 255, 0.6);
         }
-    
-        input:checked + .slider:before {
+
+        input:checked+.slider:before {
             transform: translateX(11px);
         }
+
+        .datarow {
+            position: relative;
+            margin: 0 -1.7em;
+            padding: 0 1.7em;
+
+            &:hover {
+                background-color: rgba(0, 255, 255, 0.2);
+            }
+        }
+
+        .datum:after {
+            left:0;
+            opacity: 0.5;
+            position: absolute;
+            content: "█";
+            display: inline-block;
+            width: 100%; 
+            height: 10px;
+            top: 0;
+        }
+
+        .datum.col-0:after {
+            transform: translateX(calc((var(--x) * var(--a-0) + var(--b-0)) * 1%));
+        }
+
+        .datum.col-1:after {
+            transform: translateX(calc((var(--x) * var(--a-1) + var(--b-1)) * 1%));
+        }
+
+        .datum.col-2:after {
+            transform: translateX(calc((var(--x) * var(--a-2) + var(--b-2)) * 1%));
+        }
+
+        .datum.col-3:after {
+            transform: translateX(calc((var(--x) * var(--a-3) + var(--b-3)) * 1%));
+        }
+
+        .datum.col-4:after {
+            transform: translateX(calc((var(--x) * var(--a-4) + var(--b-4)) * 1%));
+        }
+
+        .datum.col-5:after {
+            transform: translateX(calc((var(--x) * var(--a-5) + var(--b-5)) * 1%));
+        }
+
+        .datum.col-6:after {
+            transform: translateX(calc((var(--x) * var(--a-6) + var(--b-6)) * 1%));
+        }
+
+        .datum.col-7:after {
+            transform: translateX(calc((var(--x) * var(--a-7) + var(--b-7)) * 1%));
+        }
+
     </style>
 </head>
 
 <body>
     <div id="ui">
-        <label for="autoscroll">SCROLL</label>
-        <label class="switch">
-            <input type="checkbox" id="autoscroll" checked>
-            <span class="slider"></span>
-        </label>
-        <label for="format" style="margin-left:0.5em;">FORMAT</label>
-        <label class="switch">
-            <input type="checkbox" id="format" checked>
-            <span class="slider"></span>
-        </label>
-        <button id="copy" style="margin-left:2em;">COPY ALL</button>
-        <button id="clear" style="margin-right:1em;">CLEAR</button>
-        <label>
-            <input type="text" id="baudRate" value="115200" style="width: 5em;" />bps
-        </label>
-        <button id="connect">CONNECT</button>
+        <div class="ui-row">
+            <button id="copy" style="margin-left:2em;">COPY</button>
+            <button id="clear" style="margin-right:1em;">CLEAR</button>
+            <label>
+                <input type="text" id="baudRate" value="115200" style="width: 5em;" />bps
+            </label>
+            <button id="connect">CONNECT</button>
+        </div>
+        <div class="ui-row">
+            <label for="autoscroll">SCROLL</label>
+            <label class="switch">
+                <input type="checkbox" id="autoscroll" checked>
+                <span class="slider"></span>
+            </label>
+            <label for="format" style="margin-left:0.5em;">FORMAT</label>
+            <label class="switch">
+                <input type="checkbox" id="format" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
     </div>
-    <div id="output">
+    <pre id="output">
 
 
         ███████╗███████╗██████╗ ██╗ █████╗ ██╗                     
@@ -230,90 +300,119 @@
 
         see <a href="https://github.com/maruta/serial-monitor-web"
             target="_blank">https://github.com/maruta/serial-monitor-web</a> for more info.
-    </div>
+    </pre>
     <div id="overlay">COPIED!</div>
 </body>
 
 <script>
     let port;
+    let col_stat = {};
+
     document.getElementById('connect').addEventListener('click', async () => {
         const baudRate = parseInt(document.getElementById('baudRate').value);
 
-        try {
-            port = await navigator.serial.requestPort();
-            await port.open({ baudRate });
-            document.getElementById('output').innerText = "";
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate });
+        document.getElementById('output').innerText = "";
 
-            while (port.readable) {
-                const reader = port.readable.getReader();
-                try {
-                    function formatLine(text){
-                        const outputElement = document.createElement('div');
-                        
-                        let delimiter = null;
-                        if (text.includes(',')) {
-                            delimiter = ',';
-                        } else if (text.includes('\t')) {
-                            delimiter = '\t';
-                        }
-                        if (!delimiter) {
-                            outputElement.textContent = text;
-                            return outputElement;
-                        }
+        function update_stats() {
+            const outputElement = document.getElementById('output');
+            for (let i = 0; i < 9; i++) {
+                if (col_stat[i] === undefined) continue;
+                const a = 90 / (col_stat[i].max - col_stat[i].min);
+                const b = -a * col_stat[i].min + 5;
+                outputElement.style.setProperty('--a-' + i, a);
+                outputElement.style.setProperty('--b-' + i, b);
+            }
+        }
 
-                        const cells = text.split(delimiter);
-                        cells.forEach((cell, idx) => {
-                            const color = ["#009BFF", "#2BCF58", "#FF4560", "#FFD43B"][idx % 4];
-                            const spanElement = document.createElement('span');
-                            spanElement.style.color = color;
-                            spanElement.textContent = cell;
-                            outputElement.appendChild(spanElement);
+        let updateRequired = false;
+        while (port.readable) {
+            const reader = port.readable.getReader();
+            function formatLine(text) {
+                const outputElement = document.createElement('div');
+                outputElement.classList.add("datarow");
 
-                            if (idx < cells.length - 1) {
-                                outputElement.appendChild(document.createTextNode(delimiter));
+                let delimiter = null;
+                if (text.includes(',')) {
+                    delimiter = ',';
+                } else if (text.includes('\t')) {
+                    delimiter = '\t';
+                }
+                if (!delimiter) {
+                    outputElement.textContent = text;
+                    return outputElement;
+                }
+
+                const cells = text.split(delimiter);
+
+                cells.forEach((cell, idx) => {
+                    const color = ["#009BFF", "#2BCF58", "#FF4560", "#FFD43B"][idx % 4];
+                    const spanElement = document.createElement('span');
+                    spanElement.classList.add("col-" + idx);
+
+                    if (cell.match(/^[e0-9\.\-\+]+$/)) {
+                        const value = parseFloat(cell);
+                        if (col_stat[idx] === undefined) {
+                            col_stat[idx] = { min: value, max: value };
+                            updateRequired = true;
+                        } else {
+                            if (value < col_stat[idx].min || value > col_stat[idx].max) {
+                                col_stat[idx].min = Math.min(col_stat[idx].min, value);
+                                col_stat[idx].max = Math.max(col_stat[idx].max, value);
+                                updateRequired = true;
                             }
-                        });
-                        return outputElement;
+                        }
+                        spanElement.classList.add("datum");
+                        spanElement.style.setProperty('--x', value);
                     }
+                    spanElement.style.color = color;
+                    spanElement.textContent = cell;
+                    outputElement.appendChild(spanElement);
+
+                    if (idx < cells.length - 1) {
+                        outputElement.appendChild(document.createTextNode(delimiter));
+                    }
+                });
+                return outputElement;
+            }
 
 
-                    const outputContainer = document.getElementById('output');
-                    while (true) {
-                        let buffer = "";
-                        let lastLine = outputContainer.lastChild;
-                        const { value, done } = await reader.read();
-                        if (done) break;
-                        const decodedValue = new TextDecoder().decode(value);
-        
-                        if (lastLine) {
-                            buffer += lastLine.textContent;
-                            outputContainer.removeChild(lastLine);
-                        }
-        
-                        buffer += decodedValue;
-        
-                        const lines = buffer.split("\n");
-                        for(let i=0; i<lines.length-1; i++){
-                            outputContainer.appendChild(document.getElementById('format').checked ? formatLine(lines[i]): document.createTextNode(lines[i]+ "\n"));
-                        }
-                        outputContainer.appendChild(document.createTextNode(lines[lines.length-1]));
-                        if (document.getElementById('autoscroll').checked) {
-                            outputContainer.scrollTop = outputContainer.scrollHeight;
-                        }
-                    }        
-                } catch (error) {
-                    console.error("Reading error: ", error);
-                } finally {
-                    reader.releaseLock();
+            const outputContainer = document.getElementById('output');
+            while (true) {
+                let buffer = "";
+                let lastLine = outputContainer.lastChild;
+                const { value, done } = await reader.read();
+                if (done) break;
+                const decodedValue = new TextDecoder().decode(value);
+
+                if (lastLine && lastLine.parentNode === outputContainer) {
+                    buffer += lastLine.textContent;
+                    outputContainer.removeChild(lastLine);
+                }
+
+                buffer += decodedValue;
+
+                const lines = buffer.split("\n");
+                for (let i = 0; i < lines.length - 1; i++) {
+                    outputContainer.appendChild(document.getElementById('format').checked ? formatLine(lines[i]) : document.createTextNode(lines[i] + "\n"));
+                }
+                outputContainer.appendChild(document.createTextNode(lines[lines.length - 1]));
+                if (document.getElementById('autoscroll').checked) {
+                    outputContainer.scrollTop = outputContainer.scrollHeight;
+                }
+                if (updateRequired) {
+                    update_stats();
+                    updateRequired = false;
                 }
             }
-        } catch (error) {
-            console.error("Connection error: ", error);
         }
+
     });
 
     document.getElementById("clear").addEventListener("click", () => {
         document.getElementById('output').innerText = "";
+        col_stat = {};
     });
 
     function showOverlay() {
