@@ -103,6 +103,7 @@
         }
 
         #output {
+            will-change: transform;
             border: none;
             width: 100%;
             height: 100%;
@@ -211,48 +212,55 @@
         }
 
         .datum:after {
-            left:0;
+            left: 0;
             opacity: 0.5;
             position: absolute;
             content: "█";
             display: inline-block;
-            width: 100%; 
+            width: 100%;
             height: 10px;
             top: 0;
         }
 
         .datum.col-0:after {
+            will-change: transform;
             transform: translateX(calc((var(--x) * var(--a-0) + var(--b-0)) * 1%));
         }
 
         .datum.col-1:after {
+            will-change: transform;
             transform: translateX(calc((var(--x) * var(--a-1) + var(--b-1)) * 1%));
         }
 
         .datum.col-2:after {
+            will-change: transform;
             transform: translateX(calc((var(--x) * var(--a-2) + var(--b-2)) * 1%));
         }
 
         .datum.col-3:after {
+            will-change: transform;
             transform: translateX(calc((var(--x) * var(--a-3) + var(--b-3)) * 1%));
         }
 
         .datum.col-4:after {
+            will-change: transform;
             transform: translateX(calc((var(--x) * var(--a-4) + var(--b-4)) * 1%));
         }
 
         .datum.col-5:after {
+            will-change: transform;
             transform: translateX(calc((var(--x) * var(--a-5) + var(--b-5)) * 1%));
         }
 
         .datum.col-6:after {
+            will-change: transform;
             transform: translateX(calc((var(--x) * var(--a-6) + var(--b-6)) * 1%));
         }
 
         .datum.col-7:after {
+            will-change: transform;
             transform: translateX(calc((var(--x) * var(--a-7) + var(--b-7)) * 1%));
         }
-
     </style>
 </head>
 
@@ -267,7 +275,7 @@
             <button id="connect">CONNECT</button>
         </div>
         <div class="ui-row">
-            <label for="autoscroll">SCROLL</label>
+            <label for="autoscroll">AUTO SCROLL</label>
             <label class="switch">
                 <input type="checkbox" id="autoscroll" checked>
                 <span class="slider"></span>
@@ -307,104 +315,136 @@
 <script>
     let port;
     let col_stat = {};
+    let readBuffer = [];
+    let updateRequired = false;
 
-    document.getElementById('connect').addEventListener('click', async () => {
-        const baudRate = parseInt(document.getElementById('baudRate').value);
+    document.addEventListener("DOMContentLoaded", function (event) {
+        const outputContainer = document.getElementById('output');
 
-        port = await navigator.serial.requestPort();
-        await port.open({ baudRate });
-        document.getElementById('output').innerText = "";
-
-        function update_stats() {
-            const outputElement = document.getElementById('output');
-            for (let i = 0; i < 9; i++) {
-                if (col_stat[i] === undefined) continue;
-                const a = 90 / (col_stat[i].max - col_stat[i].min);
-                const b = -a * col_stat[i].min + 5;
-                outputElement.style.setProperty('--a-' + i, a);
-                outputElement.style.setProperty('--b-' + i, b);
-            }
-        }
-
-        let updateRequired = false;
-        while (port.readable) {
-            const reader = port.readable.getReader();
-            function formatLine(text) {
-                const outputElement = document.createElement('div');
-                outputElement.classList.add("datarow");
-
-                let delimiter = null;
-                if (text.includes(',')) {
-                    delimiter = ',';
-                } else if (text.includes('\t')) {
-                    delimiter = '\t';
-                }
-                if (!delimiter) {
-                    outputElement.textContent = text;
-                    return outputElement;
-                }
-
-                const cells = text.split(delimiter);
-
-                cells.forEach((cell, idx) => {
-                    const color = ["#009BFF", "#2BCF58", "#FF4560", "#FFD43B"][idx % 4];
-                    const spanElement = document.createElement('span');
-                    spanElement.classList.add("col-" + idx);
-
-                    if (cell.match(/^[e0-9\.\-\+]+$/)) {
-                        const value = parseFloat(cell);
-                        if (col_stat[idx] === undefined) {
-                            col_stat[idx] = { min: value, max: value };
-                            updateRequired = true;
-                        } else {
-                            if (value < col_stat[idx].min || value > col_stat[idx].max) {
-                                col_stat[idx].min = Math.min(col_stat[idx].min, value);
-                                col_stat[idx].max = Math.max(col_stat[idx].max, value);
-                                updateRequired = true;
-                            }
-                        }
-                        spanElement.classList.add("datum");
-                        spanElement.style.setProperty('--x', value);
-                    }
-                    spanElement.style.color = color;
-                    spanElement.textContent = cell;
-                    outputElement.appendChild(spanElement);
-
-                    if (idx < cells.length - 1) {
-                        outputElement.appendChild(document.createTextNode(delimiter));
-                    }
-                });
-                return outputElement;
-            }
-
-
-            const outputContainer = document.getElementById('output');
-            while (true) {
-                let buffer = "";
+        function renderContent() {
+            if (readBuffer.length) {
+                let buffer = readBuffer.join('');
+                readBuffer = [];
+                const autoscroll = document.getElementById('autoscroll');
                 let lastLine = outputContainer.lastChild;
-                const { value, done } = await reader.read();
-                if (done) break;
-                const decodedValue = new TextDecoder().decode(value);
 
                 if (lastLine && lastLine.parentNode === outputContainer) {
-                    buffer += lastLine.textContent;
+                    buffer = lastLine.textContent + buffer;
                     outputContainer.removeChild(lastLine);
                 }
 
-                buffer += decodedValue;
-
                 const lines = buffer.split("\n");
+                let prevScrollFromBottom = outputContainer.scrollHeight- (outputContainer.scrollTop + outputContainer.clientHeight);
+                const fragment = document.createDocumentFragment();
                 for (let i = 0; i < lines.length - 1; i++) {
-                    outputContainer.appendChild(document.getElementById('format').checked ? formatLine(lines[i]) : document.createTextNode(lines[i] + "\n"));
+                    fragment.appendChild(document.getElementById('format').checked ? formatLine(lines[i]) : document.createTextNode(lines[i] + "\n"));
                 }
-                outputContainer.appendChild(document.createTextNode(lines[lines.length - 1]));
-                if (document.getElementById('autoscroll').checked) {
+                fragment.appendChild(document.createTextNode(lines[lines.length - 1]));
+                outputContainer.appendChild(fragment);
+
+                if (autoscroll.checked) {
                     outputContainer.scrollTop = outputContainer.scrollHeight;
                 }
                 if (updateRequired) {
                     update_stats();
                     updateRequired = false;
                 }
+            }
+            requestAnimationFrame(renderContent);
+        }
+        requestAnimationFrame(renderContent);
+    });
+
+    function update_stats() {
+        const outputElement = document.getElementById('output');
+        for (let i = 0; i < 9; i++) {
+            if (col_stat[i] === undefined) continue;
+            const a = 50 / (col_stat[i].max - col_stat[i].min);
+            const b = -a * col_stat[i].min+30;
+            outputElement.style.setProperty('--a-' + i, a);
+            outputElement.style.setProperty('--b-' + i, b);
+        }
+    }
+
+    const re_isnumber = /^[e0-9\.\-\+]+$/.compile();
+
+    function formatLine(text) {
+        const outputElement = document.createElement('div');
+        outputElement.classList.add("datarow");
+
+        let delimiter = null;
+        if (text.includes(',')) {
+            delimiter = ',';
+        } else if (text.includes('\t')) {
+            delimiter = '\t';
+        } else if (text.match(re_isnumber)) {
+            delimiter = ' ';
+        }
+        if (!delimiter) {
+            outputElement.textContent = text;
+            return outputElement;
+        }
+
+        const cells = text.split(delimiter);
+
+
+        const val2pos = (idx, value) => {
+            const a = 50 / (col_stat[idx].max - col_stat[idx].min);
+            const b = -a * col_stat[idx].min+30;
+            return (value * a + b);
+        };
+
+        cells.forEach((cell, idx) => {
+            const color = ["#009BFF", "#2BCF58", "#FF4560", "#FFD43B"][idx % 4];
+            const spanElement = document.createElement('span');
+            spanElement.classList.add("col-" + idx);
+
+            if (cell.trim().match(re_isnumber)) {
+                const value = parseFloat(cell);
+                if (col_stat[idx] === undefined) {
+                    col_stat[idx] = { min: value, max: value };
+                    updateRequired = true;
+                } else {
+                    const pos = val2pos(idx, value);
+                    if ((isNaN(pos) && value < col_stat[idx].min) || pos<20) {
+                        col_stat[idx].min = value;
+                        updateRequired = true;
+                    }
+                    if ((isNaN(pos) && value > col_stat[idx].max) ||pos>90) {
+                        col_stat[idx].max = value;
+                        updateRequired = true;
+                    }
+                }
+                spanElement.classList.add("datum");
+                spanElement.style.setProperty('--x', value);
+            }
+            spanElement.style.color = color;
+            spanElement.textContent = cell;
+            outputElement.appendChild(spanElement);
+
+            if (idx < cells.length - 1) {
+                outputElement.appendChild(document.createTextNode(delimiter));
+            }
+        });
+        return outputElement;
+    }
+
+
+    document.getElementById('connect').addEventListener('click', async () => {
+        const baudRate = parseInt(document.getElementById('baudRate').value);
+
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate, bufferSize: 1024 * 1024 });
+        document.getElementById('output').innerText = "";
+
+        while (port.readable) {
+            const reader = port.readable.getReader();
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                const decodedValue = new TextDecoder().decode(value);
+                readBuffer.push(decodedValue);
             }
         }
 
