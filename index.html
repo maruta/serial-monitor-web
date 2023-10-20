@@ -334,7 +334,6 @@
                 }
 
                 const lines = buffer.split("\n");
-                let prevScrollFromBottom = outputContainer.scrollHeight- (outputContainer.scrollTop + outputContainer.clientHeight);
                 const fragment = document.createDocumentFragment();
                 for (let i = 0; i < lines.length - 1; i++) {
                     fragment.appendChild(document.getElementById('format').checked ? formatLine(lines[i]) : document.createTextNode(lines[i] + "\n"));
@@ -360,7 +359,7 @@
         for (let i = 0; i < 9; i++) {
             if (col_stat[i] === undefined) continue;
             const a = 50 / (col_stat[i].max - col_stat[i].min);
-            const b = -a * col_stat[i].min+30;
+            const b = -a * col_stat[i].min + 30;
             outputElement.style.setProperty('--a-' + i, a);
             outputElement.style.setProperty('--b-' + i, b);
         }
@@ -390,7 +389,7 @@
 
         const val2pos = (idx, value) => {
             const a = 50 / (col_stat[idx].max - col_stat[idx].min);
-            const b = -a * col_stat[idx].min+30;
+            const b = -a * col_stat[idx].min + 30;
             return (value * a + b);
         };
 
@@ -406,11 +405,11 @@
                     updateRequired = true;
                 } else {
                     const pos = val2pos(idx, value);
-                    if ((isNaN(pos) && value < col_stat[idx].min) || pos<20) {
+                    if ((isNaN(pos) && value < col_stat[idx].min) || pos < 20) {
                         col_stat[idx].min = value;
                         updateRequired = true;
                     }
-                    if ((isNaN(pos) && value > col_stat[idx].max) ||pos>90) {
+                    if ((isNaN(pos) && value > col_stat[idx].max) || pos > 90) {
                         col_stat[idx].max = value;
                         updateRequired = true;
                     }
@@ -437,15 +436,15 @@
         await port.open({ baudRate, bufferSize: 1024 * 1024 });
         document.getElementById('output').innerText = "";
 
-        while (port.readable) {
-            const reader = port.readable.getReader();
+        const decoderStream = new TextDecoderStream();
+        const readableStream = port.readable.pipeThrough(decoderStream);
 
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
-                const decodedValue = new TextDecoder().decode(value);
-                readBuffer.push(decodedValue);
-            }
+        const reader = readableStream.getReader();
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            readBuffer.push(value);
         }
 
     });
