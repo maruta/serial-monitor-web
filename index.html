@@ -340,9 +340,10 @@
                 const fragment = document.createDocumentFragment();
                 for (let i = 0; i < lines.length - 1; i++) {
                     if(lines[i].charAt(0) === '#') {
-                        const line = lines[i].split(" ");
-                        if(line[0] === "#file") {
-                            filename = line[1];
+                        const line = lines[i];
+                        const match = line.match(/^#file\s+(.*)/);
+                        if(match) {
+                            filename = match[1];
                         }
                         fragment.appendChild(document.createTextNode(lines[i] + "\n"))
                     }else if(document.getElementById('format').checked){
