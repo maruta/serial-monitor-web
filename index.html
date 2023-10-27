@@ -318,6 +318,7 @@
     let col_stat = {};
     let readBuffer = [];
     let updateRequired = false;
+    let filename = "";
     let format = "txt";
 
     document.addEventListener("DOMContentLoaded", function (event) {
@@ -338,7 +339,17 @@
                 const lines = buffer.split("\n");
                 const fragment = document.createDocumentFragment();
                 for (let i = 0; i < lines.length - 1; i++) {
-                    fragment.appendChild(document.getElementById('format').checked ? formatLine(lines[i]) : document.createTextNode(lines[i] + "\n"));
+                    if(lines[i].charAt(0) === '#') {
+                        const line = lines[i].split(" ");
+                        if(line[0] === "#file") {
+                            filename = line[1];
+                        }
+                        fragment.appendChild(document.createTextNode(lines[i] + "\n"))
+                    }else if(document.getElementById('format').checked){
+                        fragment.appendChild(formatLine(lines[i]));
+                    }else{
+                        fragment.appendChild(document.createTextNode(lines[i] + "\n"));
+                    }
                 }
                 fragment.appendChild(document.createTextNode(lines[lines.length - 1]));
                 outputContainer.appendChild(fragment);
@@ -410,11 +421,11 @@
                     updateRequired = true;
                 } else {
                     const pos = val2pos(idx, value);
-                    if ((isNaN(pos) && value < col_stat[idx].min) || pos < 20) {
+                    if (isNaN(col_stat[idx].min) || (isNaN(pos) && value < col_stat[idx].min) || pos < 20) {
                         col_stat[idx].min = value;
                         updateRequired = true;
                     }
-                    if ((isNaN(pos) && value > col_stat[idx].max) || pos > 90) {
+                    if (isNaN(col_stat[idx].max) || (isNaN(pos) && value > col_stat[idx].max) || pos > 90) {
                         col_stat[idx].max = value;
                         updateRequired = true;
                     }
@@ -483,8 +494,16 @@
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
-        // name the file by date time
-        let filename = new Date().toISOString().replace(/:/g, "-");
+        
+        if(filename === ""){
+            const now = new Date();
+            filename = now.getFullYear() + 
+                ("0" + (now.getMonth() + 1)).slice(-2) + 
+                ("0" + now.getDate()).slice(-2) + 
+                ("0" + now.getHours()).slice(-2) + 
+                ("0" + now.getMinutes()).slice(-2) + 
+                ("0" + now.getSeconds()).slice(-2);
+        }        
         link.setAttribute("download", filename + "." + format);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
